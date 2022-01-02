@@ -1,0 +1,49 @@
+version: '3.4'
+
+services:
+
+  node:
+
+    # ☃️
+    build:
+      args:
+        - NODE_ENV=development
+
+        # don't build the app
+        - BUILD_COMMAND=
+
+    # 🌳
+    environment:
+      NODE_ENV: development
+      chown_app: /app
+      chown_node_modules: /app/node_modules
+      chown_yarn: /usr/local/share/.cache/yarn
+
+    # 👻
+    restart: "no"
+
+    # 📂
+    volumes:
+      - ./node:/app
+
+    # in development mode we mount the source folder as a volume
+    # and download the depencencies there so they can be parsed
+    # by the IDE
+    #
+    # for development flexibility we only run migrations only if they have not been
+    # set up yet (first run)
+    # 🚀
+    command: >-
+       sh -c '
+       yarn
+       && wait-port postgres 5432
+       && echo ready; while true; do sleep 100; done
+       '
+
+  postgres:
+    # 👻
+    restart: "no"
+
+    # 🔗
+    ports:
+      - ${POSTGRES_PORT:-8050}:5432

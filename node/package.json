@@ -1,0 +1,43 @@
+{
+  "name": "migrami",
+  "version": "0.1.0",
+  "description": "Naïve migrations for Postgres",
+  "author": "tacone <tacone@gmail.com> (https://github.com/tacone/)",
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://github.com/tacone/migrami",
+  "bugs": {
+    "url": "https://github.com/tacone/migrami/issues",
+    "email": "tacone@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tacone/migrami.git"
+  },
+  "keywords": [
+    "postgres",
+    "migrations",
+    "node"
+  ],
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -w src --exec node src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.2",
+    "pg": "^8.7.1",
+    "pg-minify": "^1.6.2",
+    "yargs": "^17.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "eta": "^1.12.3",
+    "cli-highlight": "^2.1.11",
+    "prettier": "^2.5.1"
+  }
+}

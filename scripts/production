@@ -1,0 +1,21 @@
+#!/bin/bash
+source $(dirname "$0")/lib/init
+
+# ------------------------------------------------------------------
+# This script wraps docker-compose to provide environment based
+# defaults and added functionality.
+#
+# Use it from the project root just like docker-composer
+#
+# example:
+#
+# scripts/production up
+# ------------------------------------------------------------------
+#
+# warning: this script is not used anywhere in the project
+#          it's just an example of how to run the app in
+#          production mode
+
+COMMON="-f docker-compose.yml"
+
+docker-compose $COMMON "$@"

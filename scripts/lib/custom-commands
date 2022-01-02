@@ -1,0 +1,51 @@
+#!/bin/bash
+
+handle-custom-commands () {
+
+    # undocumented shortcuts :-)
+
+    if [ "$1" = "b" ]; then
+        $THIS build "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "d" ]; then
+        $THIS down "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "x" ]; then
+        $THIS exec "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "l" ]; then
+        $THIS logs "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "r" ]; then
+        $THIS run "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "s" ]; then
+        $THIS stop "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "u" ]; then
+        $THIS up "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "ub" ]; then
+        $THIS up --build "${@:2}"
+        exit 0;
+    fi;
+
+    if [ "$1" = "v" ]; then
+        $THIS version "${@:2}"
+        exit 0;
+    fi;
+}

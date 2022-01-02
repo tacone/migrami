@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# --- Base Environment Variables
+SCRIPTS=$(realpath $(dirname "$0"))
+THIS=$SCRIPTS/$(basename "$0")
+ROOT=$(realpath $SCRIPTS/..)
+
+cd $ROOT
+
+export COMPOSE_PROJECT_NAME=$(basename $ROOT)
+export USER_ID=$UID
+
+source $SCRIPTS/lib/custom-commands
+
+handle-custom-commands "$@"

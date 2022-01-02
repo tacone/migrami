@@ -1,0 +1,10 @@
+# ignore everything by default
+*
+
+# whitelist js source code
+!/node
+# but not the dependencies
+/node/node_modules
+
+# some scripts are used in the containers
+!/scripts/

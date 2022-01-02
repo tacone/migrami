@@ -1,0 +1,93 @@
+version: '3.4'
+
+services:
+
+  node:
+
+    image: node
+
+    # ☃️
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        BUILD_COMMAND: yarn run build
+
+        # the UID we'll use to run the app, use 0 if you want root
+        USER_ID: ${USER_ID} # 🔑
+        # other env variables needed by the build
+        NODE_ENV: production
+
+    # 🚪 a custom entrypoint to fix permissions
+    entrypoint: /entrypoint.sh # 🔑
+
+    # 🌳
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${POSTGRES_CONNECTION_URL}/${POSTGRES_DATABASE}
+      YARN_DISABLE_SELF_UPDATE_CHECK: "true"
+      USER_ID: ${USER_ID}
+      chown_tmp: /tmp
+      chown_yarn_global_folder: /usr/local/share/.yarn
+
+    # 🔗
+    ports:
+      - ${NODE_PORT:-8001}:3000
+
+    # 👻
+    restart: "always"
+
+    # 🛡️ make everything read-only except the volumes
+    read_only: true
+
+    # always use root here, we'll change the user in the entrypoint
+    # to $USER_ID
+    # 🔑
+    user: "0"
+
+    # 📂
+    volumes:
+      # a custom entrypoint to fix permissions (depends on su-exec)
+      - ./entrypoint.sh:/entrypoint.sh # 🔑
+
+      # make these directories writable
+      - /tmp/migrami/node:/tmp
+
+      # share yarn cache folder with the other containers
+      - ./data/yarn-${USER_ID}:/usr/local/share/.cache/yarn
+
+      # prevent "cannot find a suitable global folder" warning
+      - ./data/yarn-${USER_ID}:/usr/local/share/.yarn
+
+      # utility scripts
+      - ./scripts/bin/wait-port:/usr/local/bin/wait-port:ro
+
+    # 🔧
+    working_dir: /app
+
+    # 🚀
+    command: >-
+      sh -c '
+        wait-port postgres 5432
+        && echo ready; while true; do sleep 100; done
+      '
+
+  postgres:
+
+    image: postgres:14-alpine
+
+    # 🌳
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+
+    # 👻
+    restart: "always"
+
+    # 🛡️ make everything read-only except the volumes
+    read_only: true
+
+    # 📂
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - /tmp/${COMPOSE_PROJECT_NAME}/postgres:/tmp
+      - /tmp/${COMPOSE_PROJECT_NAME}/postgres-var-run:/var/run
