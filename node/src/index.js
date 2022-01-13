@@ -97,14 +97,9 @@ export default async function migrami(config) {
         process.exit(status || 0);
       }
     )
-    .command(
-      "version",
-      "Print the current version of the database",
-      {},
-      (yargs) => {}
-    )
     // watch
     .command("help", "Print this help message", {}, (yargs) => {})
+    .version(false)
     .strictCommands()
     .strictOptions()
     .demandCommand(1, 1, "Please specify a command")
