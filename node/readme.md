@@ -33,7 +33,7 @@ touch migrations/current.sql
 ```js
 // migrami.js
 
-import migrami from "../index.js";
+import migrami from "migrami";
 
 migrami({
   connectionString: process.env.DATABASE_URL,
@@ -85,7 +85,7 @@ Then:
 ```js
 // migrami.js
 
-import migrami from "../index.js";
+import migrami from "migrami";
 import * as eta from "eta";
 import { highlight } from "cli-highlight";
 
