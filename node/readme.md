@@ -2,17 +2,16 @@
 
 Naive Postgres migrations for Node, partially inspired by [Graphile Migrate](https://github.com/graphile/migrate).
 
-|     | Feature        | Description                                                |
-| --- | -------------- | ---------------------------------------------------------- |
-| 💥  | Alpha          | Everything is likely to change and not work properly       |
-| 💥  | Experimental   | Untested in production                                     |
-| 🏁  | Fast iteration | Work on current.sq and have its sql applied at every save  |
-| ⛑️  | Safe           | Migrations are wrapped in transactions                     |
-| 👉  | Sql only       | Write your migrations directly in SQL                      |
-| 👉  | Postgres only  | Only works with Postgres                                   |
-| 👉  | Forward only   | No down migrations                                         |
-| 🔧  | Customizable   | Pluggable migration interpolation and sql highlighting     |
-
+|     | Feature        | Description                                               |
+| --- | -------------- | --------------------------------------------------------- |
+| 💥  | Alpha          | Everything is likely to change and not work properly      |
+| 💥  | Experimental   | Untested in production                                    |
+| 🏁  | Fast iteration | Work on current.sq and have its sql applied at every save |
+| ⛑️  | Safe           | Migrations are wrapped in transactions                    |
+| 👉  | Sql only       | Write your migrations directly in SQL                     |
+| 👉  | Postgres only  | Only works with Postgres                                  |
+| 👉  | Forward only   | No down migrations                                        |
+| 🔧  | Customizable   | Pluggable migration interpolation and sql highlighting    |
 
 ## Installation
 
@@ -26,6 +25,7 @@ Then in the root of your project create the default `migrations` directory and `
 mkdir -p migrations/committed
 touch migrations/current.sql
 ```
+
 ## Examples
 
 ### Basic usage
@@ -45,29 +45,23 @@ Then run `node migrami.js` to see the available options.
 You will get something like this (the sample below may be outdated):
 
 ```
-Usage: interpolate.js <command> [options]
+Usage: migrami.js <command> [options]
 
 Commands:
-  interpolate.js migrate   Migrate the database to the
-                           latest version
-  interpolate.js commit    Commit the current migration
-  interpolate.js uncommit  Uncommit the last committed
-                           migration
-  interpolate.js down      Remove the last migration fr
-                           om the migrations table
-  interpolate.js watch     Apply the current migration
-                           at every save
-  interpolate.js reset     Remove all migrations from t
-                           he migrations table
-  interpolate.js up        Apply the next unapplied mig
-                           ration to the database
-  interpolate.js version   Print the current version of
-                            the database
-  interpolate.js help      Print this help message
+  migrami.js migrate   Migrate the database to the latest version
+  migrami.js commit    Commit the current migration
+  migrami.js uncommit  Uncommit the last committed migration
+  migrami.js down      Remove the last migration from the migrations table
+  migrami.js watch     Apply the current migration at every save
+  migrami.js reset     Remove all migrations from the migrations table
+  migrami.js up        Apply the next unapplied migration to the database
+  migrami.js config    Print the current configuration
+  migrami.js help      Print this help message
 
 Options:
-      --version  Show version number          [boolean]
-  -h, --help     Show help
+  -h, --help  Show help                                                [boolean]
+
+Please specify a command
 ```
 
 ### Full example
@@ -95,17 +89,24 @@ eta.configure({
 });
 
 migrami({
+  // allow templating in migration files
   interpolate: (sql) => {
     return eta.render(sql, { env: process.env });
   },
 
+  // highlight sql errors in the console
   highlightSql: (sql) => {
     return highlight(sql, { language: "sql", ignoreIllegals: true });
   },
 
+  // set custom connection string and paths
   connectionString: process.env.DATABASE_URL,
   migrationsPath: "./migrations/committed",
   currentPath: "./migrations/current.sql",
+
+  // also use a different table and schema
+  schema: "app",
+  table: "my_migrations_table",
 });
 ```
 

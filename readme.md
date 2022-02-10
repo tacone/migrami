@@ -2,17 +2,16 @@
 
 Naive Postgres migrations for Node, partially inspired by [Graphile Migrate](https://github.com/graphile/migrate).
 
-|     | Feature        | Description                                                |
-| --- | -------------- | ---------------------------------------------------------- |
-| 💥  | Alpha          | Everything is likely to change and not work properly       |
-| 💥  | Experimental   | Untested in production                                     |
-| 🏁  | Fast iteration | Work on current.sq and have its sql applied at every save  |
-| ⛑️  | Safe           | Migrations are wrapped in transactions                     |
-| 👉  | Sql only       | Write your migrations directly in SQL                      |
-| 👉  | Postgres only  | Only works with Postgres                                   |
-| 👉  | Forward only   | No down migrations                                         |
-| 🔧  | Customizable   | Pluggable migration interpolation and sql highlighting     |
-
+|     | Feature        | Description                                               |
+| --- | -------------- | --------------------------------------------------------- |
+| 💥  | Alpha          | Everything is likely to change and not work properly      |
+| 💥  | Experimental   | Untested in production                                    |
+| 🏁  | Fast iteration | Work on current.sq and have its sql applied at every save |
+| ⛑️  | Safe           | Migrations are wrapped in transactions                    |
+| 👉  | Sql only       | Write your migrations directly in SQL                     |
+| 👉  | Postgres only  | Only works with Postgres                                  |
+| 👉  | Forward only   | No down migrations                                        |
+| 🔧  | Customizable   | Pluggable migration interpolation and sql highlighting    |
 
 ## Installation
 
@@ -26,6 +25,7 @@ Then in the root of your project create the default `migrations` directory and `
 mkdir -p migrations/committed
 touch migrations/current.sql
 ```
+
 ## Examples
 
 ### Basic usage
@@ -89,17 +89,24 @@ eta.configure({
 });
 
 migrami({
+  // allow templating in migration files
   interpolate: (sql) => {
     return eta.render(sql, { env: process.env });
   },
 
+  // highlight sql errors in the console
   highlightSql: (sql) => {
     return highlight(sql, { language: "sql", ignoreIllegals: true });
   },
 
+  // set custom connection string and paths
   connectionString: process.env.DATABASE_URL,
   migrationsPath: "./migrations/committed",
   currentPath: "./migrations/current.sql",
+
+  // also use a different table and schema
+  schema: "app",
+  table: "my_migrations_table",
 });
 ```
 

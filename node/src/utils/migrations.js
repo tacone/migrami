@@ -10,7 +10,6 @@ import { maxAttemptsChecker, timestampPacker } from "./misc.js";
 import { watchFile } from "./watch.js";
 
 // TODO:
-// allow customizing the migration table name and schema
 // middleware before all migrations are run
 // middleware after all migrations are run
 // middleware before each migration is run
@@ -19,10 +18,12 @@ import { watchFile } from "./watch.js";
 // verbose flag (log all queries)
 
 let config = defaults;
+
 let globals = {
   client: undefined,
   interpolate: (_) => _,
   highlightSql: (_) => _,
+  table: () => `"${config.schema}"."${config.table}"`,
 };
 
 export async function configure(customConfig = {}) {
@@ -32,7 +33,7 @@ export async function configure(customConfig = {}) {
   config.highlightSql && (globals.highlightSql = config.highlightSql);
 }
 
-export async function printConfig (){
+export async function printConfig() {
   return console.log(config);
 }
 
@@ -48,9 +49,11 @@ const interpolateSql = async function interpolateSql(sql) {
 
 export async function connect() {
   if (!config.connectionString) {
-    console.log()
-    console.warn("connectionString is not set, using the default postgres connection string");
-    console.log()
+    console.log();
+    console.warn(
+      "connectionString is not set, using the default postgres connection string"
+    );
+    console.log();
   }
   // create the postgres client
   globals.client = await connectDB(config.connectionString);
@@ -69,16 +72,16 @@ const query = async (...args) => {
 
 const ensureTable = async function ensureTable() {
   const sql = `SELECT to_regclass($1) as "exists";`;
-  const { exists } = (await query(sql, ["public.migrations"]))?.rows[0] || {};
+  const { exists } = (await query(sql, [globals.table()]))?.rows[0] || {};
   if (exists) {
     // if the table exists do nothing
     return;
   }
 
   return tx(async (_) => {
-    console.log("✨ creating migrations table...");
+    console.log(`✨ creating migrations table [${globals.table()}]...`);
     return query(`
-    CREATE TABLE migrations (
+    CREATE TABLE ${globals.table()} (
       id SERIAL PRIMARY KEY,
       filename TEXT NOT NULL,
       sql TEXT NOT NULL,
@@ -96,7 +99,7 @@ const applied = async function applied() {
   const rows =
     (
       await query(`
-        SELECT filename FROM migrations ORDER BY id ASC
+        SELECT filename FROM ${globals.table()} ORDER BY id ASC
     `)
     )?.rows || [];
   return rows.map((_) => _.filename);
@@ -196,30 +199,30 @@ const down = async function down() {
   // remove the last migration from the database
   await query(
     `
-    DELETE FROM migrations
+    DELETE FROM ${globals.table()}
     WHERE filename = $1
     `,
     [lastAppliedMigration]
   );
 
-  console.log(`🔥 ${lastAppliedMigration} removed from the migrations table`);
+  console.log(`🔥 ${lastAppliedMigration} removed from ${globals.table()}`);
 
   if (!appliedMigrations.length) {
-    console.log("the migrations table is now empty");
+    console.log(`${globals.table()} is now empty`);
     return;
   }
 
   const newLastAppliedMigration = appliedMigrations.pop();
   console.log(
-    "last migration in the migrations table is now:",
+    `last migration in ${globals.table()} is now:`,
     newLastAppliedMigration
   );
 };
 
 const reset = async function reset() {
-  await query(`DELETE FROM migrations`);
-  console.log(`🔥 removed all migrations from the migrations table`);
-  console.log("the migrations table is now empty");
+  await query(`DELETE FROM ${globals.table()}`);
+  console.log(`🔥 removed all migrations from ${globals.table()}`);
+  console.log(`${globals.table()} is now empty`);
 };
 
 const migrate = async function migrate() {
@@ -338,7 +341,7 @@ const apply = tx(async function apply(migration) {
   await query(sql);
   await query(
     `
-        INSERT INTO migrations (filename, sql)
+        INSERT INTO ${globals.table()} (filename, sql)
         VALUES ($1, $2)
     `,
     [filename, sql]
