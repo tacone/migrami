@@ -1,6 +1,6 @@
 {
   "name": "migrami",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Naïve migrations for Postgres",
   "author": "tacone <tacone@gmail.com> (https://github.com/tacone/)",
   "license": "MIT",
@@ -35,9 +35,9 @@
     "yargs": "^17.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15",
-    "eta": "^1.12.3",
     "cli-highlight": "^2.1.11",
+    "eta": "^1.12.3",
+    "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
   }
 }

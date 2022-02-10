@@ -32,6 +32,10 @@ export async function configure(customConfig = {}) {
   config.highlightSql && (globals.highlightSql = config.highlightSql);
 }
 
+export async function printConfig (){
+  return console.log(config);
+}
+
 let tx = withTransaction(globals);
 
 const interpolateSql = async function interpolateSql(sql) {
@@ -43,6 +47,11 @@ const interpolateSql = async function interpolateSql(sql) {
 };
 
 export async function connect() {
+  if (!config.connectionString) {
+    console.log()
+    console.warn("connectionString is not set, using the default postgres connection string");
+    console.log()
+  }
   // create the postgres client
   globals.client = await connectDB(config.connectionString);
 }
@@ -344,6 +353,7 @@ export default {
   configure,
   down,
   ensureTable,
+  printConfig,
   reset,
   uncommit,
   up,

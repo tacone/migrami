@@ -1,12 +1,14 @@
 import yargs from "yargs";
 import migrations from "./utils/migrations.js";
 
+async function init(){
+  await migrations.connect();
+  await migrations.ensureTable();
+}
+
 export default async function migrami(config) {
   migrations.configure(config);
 
-  await migrations.connect();
-
-  await migrations.ensureTable();
 
   // use yargs to read command and arguments
   const argv = yargs(process.argv.slice(2))
@@ -32,6 +34,7 @@ export default async function migrami(config) {
       "migrate",
       "Migrate the database to the latest version",
       async (yargs) => {
+        await init();
         const status = await migrations.migrate();
         process.exit(status || 0);
       },
@@ -51,6 +54,7 @@ export default async function migrami(config) {
 
         const message = yargs.argv?.message;
 
+        await init();
         const status = await migrations.commit(message);
         process.exit(status || 0);
       },
@@ -60,6 +64,7 @@ export default async function migrami(config) {
       "uncommit",
       "Uncommit the last committed migration",
       async (yargs) => {
+        await init();
         const status = await migrations.uncommit();
         process.exit(status || 0);
       },
@@ -69,6 +74,7 @@ export default async function migrami(config) {
       "down",
       "Remove the last migration from the migrations table",
       async (yargs) => {
+        await init();
         const status = await migrations.down();
         process.exit(status || 0);
       }
@@ -77,6 +83,7 @@ export default async function migrami(config) {
       "watch",
       "Apply the current migration at every save",
       async (yargs) => {
+        await init();
         await migrations.watch();
         // do not exit
       }
@@ -85,6 +92,7 @@ export default async function migrami(config) {
       "reset",
       "Remove all migrations from the migrations table",
       async (yargs) => {
+        await init();
         const status = await migrations.reset();
         process.exit(status || 0);
       }
@@ -93,7 +101,16 @@ export default async function migrami(config) {
       "up",
       "Apply the next unapplied migration to the database",
       async (yargs) => {
+        await init();
         const status = await migrations.up();
+        process.exit(status || 0);
+      }
+    )
+    .command(
+      "config",
+      "Print the current configuration",
+      async (yargs) => {
+        const status = await migrations.printConfig();
         process.exit(status || 0);
       }
     )

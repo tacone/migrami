@@ -45,29 +45,23 @@ Then run `node migrami.js` to see the available options.
 You will get something like this (the sample below may be outdated):
 
 ```
-Usage: interpolate.js <command> [options]
+Usage: migrami.js <command> [options]
 
 Commands:
-  interpolate.js migrate   Migrate the database to the
-                           latest version
-  interpolate.js commit    Commit the current migration
-  interpolate.js uncommit  Uncommit the last committed
-                           migration
-  interpolate.js down      Remove the last migration fr
-                           om the migrations table
-  interpolate.js watch     Apply the current migration
-                           at every save
-  interpolate.js reset     Remove all migrations from t
-                           he migrations table
-  interpolate.js up        Apply the next unapplied mig
-                           ration to the database
-  interpolate.js version   Print the current version of
-                            the database
-  interpolate.js help      Print this help message
+  migrami.js migrate   Migrate the database to the latest version
+  migrami.js commit    Commit the current migration
+  migrami.js uncommit  Uncommit the last committed migration
+  migrami.js down      Remove the last migration from the migrations table
+  migrami.js watch     Apply the current migration at every save
+  migrami.js reset     Remove all migrations from the migrations table
+  migrami.js up        Apply the next unapplied migration to the database
+  migrami.js config    Print the current configuration
+  migrami.js help      Print this help message
 
 Options:
-      --version  Show version number          [boolean]
-  -h, --help     Show help
+  -h, --help  Show help                                                [boolean]
+
+Please specify a command
 ```
 
 ### Full example
