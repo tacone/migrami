@@ -1,9 +1,11 @@
 import yargs from "yargs";
 import migrations from "./utils/migrations.js";
 
-async function init() {
+async function init(ensure = true) {
   await migrations.connect();
-  await migrations.ensureTable();
+  if (ensure) {
+    await migrations.ensureTable();
+  }
 }
 
 export default async function migrami(config) {
@@ -79,6 +81,23 @@ export default async function migrami(config) {
         await init();
         const status = await migrations.reset();
         process.exit(status || 0);
+      }
+    )
+    .command("setup", "Sets up the migrations table", async (yargs) => {
+      await init(false);
+      const status = await migrations.ensureTable(true);
+      process.exit(status ? 0 : 1);
+    })
+    .command(
+      "status",
+      "Exits with error if the migrations table is not set up",
+      async (yargs) => {
+        await init(false);
+        const status = await migrations.status();
+        if (!status) {
+          console.log("The migrations table is not set up");
+        }
+        process.exit(status ? 0 : 1);
       }
     )
     .command(

@@ -96,7 +96,24 @@ async function schemaExists(schema) {
   );
 }
 
-const ensureTable = async function ensureTable() {
+async function tableExists(table) {
+  const sql = `SELECT to_regclass($1) as "exists";`;
+  const { exists } = (await query(sql, [table]))?.rows[0] || {};
+
+  return exists;
+}
+
+const status = async function status() {
+  if (config.schema) {
+    const schemaFound = await schemaExists(config.schema);
+    if (!schemaFound) return false;
+  }
+  return !!(await tableExists(globals.table()));
+};
+
+const ensureTable = async function ensureTable(force = false) {
+  if (!force && !config.autoSetup) return;
+
   if (!config.schema && !config.schemaNoWarn) {
     console.log();
     console.warn("❗ schema is not configured, using default schema");
@@ -121,14 +138,17 @@ const ensureTable = async function ensureTable() {
     }
   }
 
-  const sql = `SELECT to_regclass($1) as "exists";`;
-  const { exists } = (await query(sql, [globals.table()]))?.rows[0] || {};
-  if (exists) {
-    // if the table exists do nothing
+  if (await tableExists(globals.table())) {
+    if (force) {
+      // if the user explicitly asked for the table to be setup
+      // tell him that it already exists
+      console.warn(`table ${globals.table()} already exists`);
+    }
+    // if the table already exists do nothing
     return;
   }
 
-  return tx(async (_) => {
+  await tx(async (_) => {
     console.log(`✨ creating migrations table [${globals.table()}]...`);
     return query(`
     CREATE TABLE ${globals.table()} (
@@ -139,6 +159,8 @@ const ensureTable = async function ensureTable() {
     )
   `);
   })();
+
+  return true;
 };
 
 const readMigration = function readMigration(filename) {
@@ -408,6 +430,7 @@ export default {
   ensureTable,
   printConfig,
   reset,
+  status,
   uncommit,
   up,
   watch,
