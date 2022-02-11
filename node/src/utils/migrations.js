@@ -79,13 +79,46 @@ const query = async (...args) => {
   }
 };
 
+async function schemaExists(schema) {
+  return (
+    (
+      await query(
+        `
+      SELECT EXISTS (
+        SELECT 1
+        FROM   pg_catalog.pg_namespace
+        WHERE  nspname = $1
+      )
+    `,
+        [config.schema]
+      )
+    )?.rows[0]?.exists || false
+  );
+}
+
 const ensureTable = async function ensureTable() {
   if (!config.schema && !config.schemaNoWarn) {
     console.log();
-    console.warn("👆 schema is not configured, using default schema");
+    console.warn("❗ schema is not configured, using default schema");
     console.warn("this is probably not what you want");
     console.warn("configure a schema or disable this warning");
     console.log();
+  }
+
+  if (config.schema) {
+    if (!(await schemaExists(config.schema))) {
+      if (!config.attemptCreateSchema) {
+        throw new Error(
+          `schema ${config.schema} does not exist, create it or set attemptCreateSchema to true`
+        );
+      }
+      console.log(
+        `schema ${config.schema} does not exist, attempting to create it...`
+      );
+      await query(`CREATE SCHEMA "${config.schema}"`);
+      // thumbs up schema created
+      console.log(`👍 schema ${config.schema} created`);
+    }
   }
 
   const sql = `SELECT to_regclass($1) as "exists";`;

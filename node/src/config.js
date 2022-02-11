@@ -9,6 +9,7 @@ const defaults = {
   // schema name
   schema: null,
   schemaNoWarn: false,
+  attemptCreateSchema: true,
   // table name
   table: "migrations",
   watchMaxEmptySaves: 3,
