@@ -1,4 +1,4 @@
-# MigraMI
+# Migrami
 
 Naive Postgres migrations for Node, partially inspired by [Graphile Migrate](https://github.com/graphile/migrate).
 
