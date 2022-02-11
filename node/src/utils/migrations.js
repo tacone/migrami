@@ -23,7 +23,16 @@ let globals = {
   client: undefined,
   interpolate: (_) => _,
   highlightSql: (_) => _,
-  table: () => `"${config.schema}"."${config.table}"`,
+  table: () => {
+    if (!config.table) {
+      throw new Error("migrations table is not configured");
+    }
+    if (config.schema) {
+      return `"${config.schema}"."${config.table}"`;
+    } else {
+      return `"${config.table}"`;
+    }
+  },
 };
 
 export async function configure(customConfig = {}) {
@@ -71,6 +80,14 @@ const query = async (...args) => {
 };
 
 const ensureTable = async function ensureTable() {
+  if (!config.schema && !config.schemaNoWarn) {
+    console.log();
+    console.warn("👆 schema is not configured, using default schema");
+    console.warn("this is probably not what you want");
+    console.warn("configure a schema or disable this warning");
+    console.log();
+  }
+
   const sql = `SELECT to_regclass($1) as "exists";`;
   const { exists } = (await query(sql, [globals.table()]))?.rows[0] || {};
   if (exists) {

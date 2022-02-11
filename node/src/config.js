@@ -7,7 +7,8 @@ const defaults = {
   // path of migration files
   migrationsPath:  `${process.cwd()}/migrations/committed`,
   // schema name
-  schema: "public",
+  schema: null,
+  schemaNoWarn: false,
   // table name
   table: "migrations",
   watchMaxEmptySaves: 3,
