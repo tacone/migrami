@@ -47,13 +47,13 @@ export default async function migrami(config) {
 
         await init();
         const status = await migrations.commit(message);
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       },
       () => {}
     )
     .command("config", "Print the current configuration", async (yargs) => {
       const status = await migrations.printConfig();
-      process.exit(status || 0);
+      process.exit(0);
     })
     .command(
       "down",
@@ -61,7 +61,7 @@ export default async function migrami(config) {
       async (yargs) => {
         await init();
         const status = await migrations.down();
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       }
     )
     .command(
@@ -70,7 +70,7 @@ export default async function migrami(config) {
       async (yargs) => {
         await init();
         const status = await migrations.migrate();
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       },
       () => {}
     )
@@ -80,7 +80,7 @@ export default async function migrami(config) {
       async (yargs) => {
         await init();
         const status = await migrations.reset();
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       }
     )
     .command("setup", "Sets up the migrations table", async (yargs) => {
@@ -106,7 +106,7 @@ export default async function migrami(config) {
       async (yargs) => {
         await init();
         const status = await migrations.uncommit();
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       },
       () => {}
     )
@@ -116,7 +116,7 @@ export default async function migrami(config) {
       async (yargs) => {
         await init();
         const status = await migrations.up();
-        process.exit(status || 0);
+        process.exit(status ? 0 : 1);
       }
     )
     .command(

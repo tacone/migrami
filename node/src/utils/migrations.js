@@ -112,7 +112,7 @@ const status = async function status() {
 };
 
 const ensureTable = async function ensureTable(force = false) {
-  if (!force && !config.autoSetup) return;
+  if (!force && !config.autoSetup) return true;
 
   if (!config.schema && !config.schemaNoWarn) {
     console.log();
@@ -145,7 +145,7 @@ const ensureTable = async function ensureTable(force = false) {
       console.warn(`table ${globals.table()} already exists`);
     }
     // if the table already exists do nothing
-    return;
+    return false;
   }
 
   await tx(async (_) => {
@@ -214,7 +214,7 @@ const commit = async function commit(message = "") {
   const sql = readMigration(config.currentPath);
   if (await isMigrationEmpty(sql)) {
     console.log("current migration is empty");
-    return;
+    return false;
   }
 
   // make sure message is kebab case
@@ -239,6 +239,8 @@ const commit = async function commit(message = "") {
   fs.writeFileSync(config.currentPath, "", "utf8");
 
   console.log(`💾 ${newFilename} committed`);
+
+  return true;
 };
 
 const uncommit = async function uncommit() {
@@ -247,7 +249,7 @@ const uncommit = async function uncommit() {
 
   if (!(await isMigrationEmpty(sql))) {
     console.log("current migration is not empty");
-    return 1;
+    return false;
   }
   // copy the last migration to current
   const migrations = await available();
@@ -259,13 +261,15 @@ const uncommit = async function uncommit() {
   console.log(
     `💾 ${lastMigrationBaseName} uncommitted, check ${config.currentPath}`
   );
+
+  return true;
 };
 
 const down = async function down() {
   const appliedMigrations = await applied();
   if (!appliedMigrations.length) {
     console.log("no migrations to remove");
-    return;
+    return false;
   }
   const lastAppliedMigration = appliedMigrations.pop();
   // remove the last migration from the database
@@ -281,7 +285,7 @@ const down = async function down() {
 
   if (!appliedMigrations.length) {
     console.log(`${globals.table()} is now empty`);
-    return;
+    return true;
   }
 
   const newLastAppliedMigration = appliedMigrations.pop();
@@ -289,19 +293,23 @@ const down = async function down() {
     `last migration in ${globals.table()} is now:`,
     newLastAppliedMigration
   );
+
+  return true;
 };
 
 const reset = async function reset() {
   await query(`DELETE FROM ${globals.table()}`);
   console.log(`🔥 removed all migrations from ${globals.table()}`);
   console.log(`${globals.table()} is now empty`);
+
+  return true;
 };
 
 const migrate = async function migrate() {
   const unappliedMigrations = await unapplied();
   if (!unappliedMigrations.length) {
     console.log("No migrations to apply");
-    return 0;
+    return false;
   }
 
   let count = 0;
@@ -311,7 +319,7 @@ const migrate = async function migrate() {
   }
 
   console.log(`Applied ${count} migrations`);
-  return count;
+  return true;
 };
 
 const up = async function up() {
@@ -319,11 +327,13 @@ const up = async function up() {
   const unappliedMigrations = await unapplied();
   if (!unappliedMigrations.length) {
     console.log("No migrations to apply");
-    return 0;
+    return false;
   }
   const migration = unappliedMigrations[0];
   console.log("Applying:", migration);
   await apply(path.join(config.migrationsPath, migration));
+
+  return true;
 };
 
 const attemptsChecker = maxAttemptsChecker(
