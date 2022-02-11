@@ -2,16 +2,29 @@
 
 Naive Postgres migrations for Node, partially inspired by [Graphile Migrate](https://github.com/graphile/migrate).
 
-|     | Feature        | Description                                               |
-| --- | -------------- | --------------------------------------------------------- |
-| 💥  | Alpha          | Everything is likely to change and not work properly      |
-| 💥  | Experimental   | Untested in production                                    |
-| 🏁  | Fast iteration | Work on current.sq and have its sql applied at every save |
-| ⛑️  | Safe           | Migrations are wrapped in transactions                    |
-| 👉  | Sql only       | Write your migrations directly in SQL                     |
-| 👉  | Postgres only  | Only works with Postgres                                  |
-| 👉  | Forward only   | No down migrations                                        |
-| 🔧  | Customizable   | Pluggable migration interpolation and sql highlighting    |
+Migrami prioritizes **fast iteration** and a **native SQL approach**, to help you build your database as fast as possible, while leveraging the whole power of Postgres.
+
+Keep your logic in the DB layer, use views, constraints, generated fields and more, while
+the watcher applies the changes to your database everytime you save the file. When you are
+done, commit the current migration to save it in the migrations folder and version it with
+the rest of your project.
+
+|     | Feature        | Description                                                |
+| --- | -------------- | ---------------------------------------------------------- |
+| 🧒  | Easy to use    | Almost plug and play                                       |
+| 🏁  | Fast iteration | Work on current.sql and have its sql applied at every save |
+| ⛑️  | Safe           | Migrations are wrapped in transactions                     |
+| 👉  | Sql only       | Write your migrations directly in SQL                      |
+| 🔧  | Customizable   | Pluggable templates and sql highlighting                   |
+
+Things to consider:
+
+|     | Constraint    | Keep in mind                                                 |
+| --- | ------------- | ------------------------------------------------------------ |
+| 💥  | Alpha         | Everything is likely to change and not work properly         |
+| 💥  | Experimental  | Untested in production                                       |
+| 👉  | Postgres only | Only works with Postgres                                     |
+| 👉  | Forward only  | No down migrations, you are expected to write idempotent sql |
 
 ## Installation
 
