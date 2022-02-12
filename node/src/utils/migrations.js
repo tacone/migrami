@@ -362,7 +362,7 @@ const applyCurrentMigration = async function applyCurrentMigration(filename) {
     console.log(`${filename} changed, applying the migration`);
 
     console.log(globals.highlightSql(sql));
-    await apply(filename);
+    await apply(filename, false);
   }
 };
 
@@ -386,19 +386,23 @@ const watch = async function watch() {
   );
 };
 
-const apply = withTransaction(async function apply(migration) {
+const apply = withTransaction(async function apply(migration, save = true) {
   const filename = path.basename(migration);
   console.log("applying", filename);
   let sql = readMigration(migration);
   sql = await interpolateSql(sql);
   await query(sql);
-  await query(
-    `
+
+  if (save) {
+    await query(
+      `
         INSERT INTO ${globals.table()} (filename, sql)
         VALUES ($1, $2)
     `,
-    [filename, sql]
-  );
+      [filename, sql]
+    );
+  }
+
   console.log(`👍 ${filename} applied`);
 });
 

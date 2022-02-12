@@ -1,6 +1,6 @@
 {
   "name": "migrami",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Naïve migrations for Postgres",
   "author": "tacone <tacone@gmail.com> (https://github.com/tacone/)",
   "license": "MIT",
