@@ -2,9 +2,8 @@ import fs from "fs";
 import path from "path";
 import pgMinify from "pg-minify";
 import { SQLParsingError } from "pg-minify/lib/error.js";
-import { DatabaseError } from "pg-protocol";
 import { defaults } from "../config.js";
-import { connect as connectDB, withTransaction } from "./db.js";
+import db from "./db.js";
 import { logDatabaseError } from "./logging.js";
 import { maxAttemptsChecker, timestampPacker } from "./misc.js";
 import { watchFile } from "./watch.js";
@@ -12,7 +11,7 @@ import { watchFile } from "./watch.js";
 // TODO:
 // ignore message in filename when computing migrations
 // consider ignoring by default migrations older than the last executed one
-// refactor: move out db functions
+// refactor: move out utility functions
 // rewrite in typescript to output CJS as well as ESM
 // middleware before all migrations are run
 // middleware after all migrations are run
@@ -49,8 +48,6 @@ export async function printConfig() {
   return console.log(config);
 }
 
-let tx = withTransaction(globals);
-
 const interpolateSql = async function interpolateSql(sql) {
   if (!globals.interpolate) {
     return sql;
@@ -58,6 +55,14 @@ const interpolateSql = async function interpolateSql(sql) {
 
   return await globals.interpolate(sql);
 };
+
+const {
+  query,
+  schemaExists,
+  tableExists,
+  withTransaction,
+  connect: connectDB,
+} = db(globals);
 
 export async function connect() {
   if (!config.connectionString) {
@@ -69,41 +74,6 @@ export async function connect() {
   }
   // create the postgres client
   globals.client = await connectDB(config.connectionString);
-}
-
-const query = async (...args) => {
-  try {
-    return await globals.client.query(...args);
-  } catch (error) {
-    if (error instanceof DatabaseError) {
-      logDatabaseError(args[0], error, globals.highlightSql);
-    }
-    throw error;
-  }
-};
-
-async function schemaExists(schema) {
-  return (
-    (
-      await query(
-        `
-      SELECT EXISTS (
-        SELECT 1
-        FROM   pg_catalog.pg_namespace
-        WHERE  nspname = $1
-      )
-    `,
-        [config.schema]
-      )
-    )?.rows[0]?.exists || false
-  );
-}
-
-async function tableExists(table) {
-  const sql = `SELECT to_regclass($1) as "exists";`;
-  const { exists } = (await query(sql, [table]))?.rows[0] || {};
-
-  return exists;
 }
 
 const status = async function status() {
@@ -151,7 +121,7 @@ const ensureTable = async function ensureTable(force = false) {
     return false;
   }
 
-  await tx(async (_) => {
+  await withTransaction(async (_) => {
     console.log(`✨ creating migrations table [${globals.table()}]...`);
     return query(`
     CREATE TABLE ${globals.table()} (
@@ -418,7 +388,7 @@ const watch = async function watch() {
   );
 };
 
-const apply = tx(async function apply(migration) {
+const apply = withTransaction(async function apply(migration) {
   const filename = path.basename(migration);
   console.log("applying", filename);
   let sql = readMigration(migration);
@@ -435,12 +405,12 @@ const apply = tx(async function apply(migration) {
 });
 
 export default {
-  migrate,
   commit,
-  connect,
   configure,
+  connect,
   down,
   ensureTable,
+  migrate,
   printConfig,
   reset,
   status,
