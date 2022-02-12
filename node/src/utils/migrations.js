@@ -10,11 +10,14 @@ import { maxAttemptsChecker, timestampPacker } from "./misc.js";
 import { watchFile } from "./watch.js";
 
 // TODO:
+// ignore message in filename when computing migrations
+// consider ignoring by default migrations older than the last executed one
+// refactor: move out db functions
+// rewrite in typescript to output CJS as well as ESM
 // middleware before all migrations are run
 // middleware after all migrations are run
 // middleware before each migration is run
 // middleware after each migration is run
-// add command to check migrations have been setup
 // verbose flag (log all queries)
 
 let config = defaults;
