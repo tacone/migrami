@@ -7,6 +7,8 @@ const defaults = {
   migrationsPath: `${process.cwd()}/migrations/committed`,
   // setup
   autoSetup: true,
+  // it's recommended to specify a schema (e.g. "public" or "migrami") otherwise
+  // the default schema will be used (this can cause undesired behavior over the time)
   schema: null,
   schemaNoWarn: false,
   attemptCreateSchema: true,

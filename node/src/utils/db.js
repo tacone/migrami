@@ -15,23 +15,22 @@ export default function db(globals) {
     return client;
   };
 
-  const withTransaction = function withTransaction() {
-    return (callback) =>
-      async (...args) => {
-        const { client } = globals;
-        console.log("🚥 starting transaction");
-        await client.query("begin");
-        try {
-          const result = await callback(...args);
-          await client.query("commit");
-          console.log("🏁 transaction over");
-          return result;
-        } catch (error) {
-          await client.query("rollback");
-          console.log("⏪ transaction rolled back");
-          throw error;
-        }
-      };
+  const withTransaction = function withTransaction(callback) {
+    return async (...args) => {
+      const { client } = globals;
+      console.log("🚥 starting transaction");
+      await client.query("begin");
+      try {
+        const result = await callback(...args);
+        await client.query("commit");
+        console.log("🏁 transaction over");
+        return result;
+      } catch (error) {
+        await client.query("rollback");
+        console.log("⏪ transaction rolled back");
+        throw error;
+      }
+    };
   };
 
   const query = async (...args) => {

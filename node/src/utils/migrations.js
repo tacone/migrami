@@ -84,7 +84,7 @@ const status = async function status() {
   return !!(await tableExists(globals.table()));
 };
 
-const ensureTable = async function ensureTable(force = false) {
+const ensureTable = withTransaction(async function ensureTable(force = false) {
   if (!force && !config.autoSetup) return true;
 
   if (!config.schema && !config.schemaNoWarn) {
@@ -121,9 +121,8 @@ const ensureTable = async function ensureTable(force = false) {
     return false;
   }
 
-  await withTransaction(async (_) => {
-    console.log(`✨ creating migrations table [${globals.table()}]...`);
-    return query(`
+  console.log(`✨ creating migrations table [${globals.table()}]...`);
+  await query(`
     CREATE TABLE ${globals.table()} (
       id SERIAL PRIMARY KEY,
       filename TEXT NOT NULL,
@@ -131,10 +130,9 @@ const ensureTable = async function ensureTable(force = false) {
       applied_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
-  })();
 
   return true;
-};
+});
 
 const readMigration = function readMigration(filename) {
   return fs.readFileSync(filename, "utf8").trimEnd() + "\n";
