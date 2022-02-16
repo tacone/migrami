@@ -9,14 +9,15 @@ import { maxAttemptsChecker, timestampPacker } from "./misc.js";
 import { watchFile } from "./watch.js";
 
 // TODO:
+// check for existance of migrations, migrations/committed and migrations/current.sql
+// figure out how to implement the shadow DB and the sql dump
 // ignore message in filename when computing migrations
-// consider ignoring by default migrations older than the last executed one
 // refactor: move out utility functions
+// refactor the filesystem to get rid of the double readme
 // rewrite in typescript to output CJS as well as ESM
-// middleware before all migrations are run
-// middleware after all migrations are run
-// middleware before each migration is run
-// middleware after each migration is run
+// consider ignoring by default migrations older than the last executed one
+// middleware before migrations are run
+// middleware after migrations are run
 // verbose flag (log all queries)
 
 let config = defaults;
@@ -280,7 +281,7 @@ const migrate = async function migrate() {
   const unappliedMigrations = await unapplied();
   if (!unappliedMigrations.length) {
     console.log("No migrations to apply");
-    return false;
+    return true;
   }
 
   let count = 0;
@@ -298,7 +299,7 @@ const up = async function up() {
   const unappliedMigrations = await unapplied();
   if (!unappliedMigrations.length) {
     console.log("No migrations to apply");
-    return false;
+    return true;
   }
   const migration = unappliedMigrations[0];
   console.log("Applying:", migration);
